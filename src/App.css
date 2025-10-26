@@ -1,38 +1,18 @@
 .App {
+  display: flex;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f9fafb;
 }
 
-.App-header {
-  background-color: rgba(255, 255, 255, 0.95);
-  padding: 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  text-align: center;
+.main-content {
+  flex: 1;
+  margin-left: 250px;
+  min-height: 100vh;
+  background: #f9fafb;
 }
 
-.App-header h1 {
-  color: #667eea;
-  margin: 0 0 0.5rem 0;
-  font-size: 2.5rem;
-}
-
-.App-header p {
-  color: #666;
-  margin: 0;
-  font-size: 1.2rem;
-}
-
-.App-main {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.error {
-  color: #ff6b6b;
-  background-color: rgba(255, 107, 107, 0.1);
-  padding: 1rem;
-  border-radius: 8px;
-  text-align: center;
-  font-weight: bold;
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+  }
 }
