@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import LeadList from './components/LeadList';
+import AssistantWidget from './components/AssistantWidget';
 import leadService from './services/leadService';
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
         {error && <p className="error">{error}</p>}
         {!loading && !error && <LeadList leads={leads} />}
       </main>
+      <AssistantWidget />
     </div>
   );
 }
