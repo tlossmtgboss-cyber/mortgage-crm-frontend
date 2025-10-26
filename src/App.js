@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
 import Login from './Login';
 import Register from './Register';
@@ -11,10 +11,13 @@ import Tasks from './components/Tasks';
 import Calendar from './components/Calendar';
 import Scorecard from './components/Scorecard';
 import AssistantWidget from './components/AssistantWidget';
+import TopNav from './components/TopNav';
 
-function App() {
+function AppContent() {
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentView, setCurrentView] = useState('dashboard');
+  const navigate = useNavigate();
 
   // Fetch leads on component mount
   useEffect(() => {
@@ -35,25 +38,39 @@ function App() {
     }
   };
 
-  const handleLeadAdded = (newLead) => {
-    // Add the new lead to the leads array
-    setLeads(prevLeads => [newLead, ...prevLeads]);
+  const handleViewChange = (view) => {
+    setCurrentView(view);
+    switch(view) {
+      case 'dashboard':
+        navigate('/');
+        break;
+      case 'leads':
+        navigate('/leads');
+        break;
+      case 'active-loans':
+        navigate('/active-loans');
+        break;
+      case 'tasks':
+        navigate('/tasks');
+        break;
+      case 'calendar':
+        navigate('/calendar');
+        break;
+      case 'scorecard':
+        navigate('/scorecard');
+        break;
+      default:
+        navigate('/');
+    }
   };
 
-  // LeadsPage component to wrap LeadList with state
-  const LeadsPage = () => (
-    <LeadList leads={leads} onLeadAdded={handleLeadAdded} />
-  );
-
   return (
-    <Router>
-      <div className="App">
+    <div className="app-container">
+      <TopNav currentView={currentView} onViewChange={handleViewChange} />
+      <div className="main-content">
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/leads" element={<LeadsPage />} />
+          <Route path="/" element={<Dashboard leads={leads} loading={loading} />} />
+          <Route path="/leads" element={<LeadList leads={leads} loading={loading} />} />
           <Route path="/active-loans" element={<ActiveLoans />} />
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/tasks" element={<Tasks />} />
@@ -62,6 +79,18 @@ function App() {
         </Routes>
         <AssistantWidget />
       </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/*" element={<AppContent />} />
+      </Routes>
     </Router>
   );
 }
