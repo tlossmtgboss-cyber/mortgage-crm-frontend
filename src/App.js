@@ -1,45 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
+import SidebarNavigation from './components/SidebarNavigation';
+import Dashboard from './components/Dashboard';
 import LeadList from './components/LeadList';
+import ActiveLoans from './components/ActiveLoans';
+import Portfolio from './components/Portfolio';
+import Tasks from './components/Tasks';
+import Calendar from './components/Calendar';
+import Scorecard from './components/Scorecard';
 import AssistantWidget from './components/AssistantWidget';
-import leadService from './services/leadService';
 
 function App() {
-  const [leads, setLeads] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetchLeads();
-  }, []);
-
-  const fetchLeads = async () => {
-    try {
-      setLoading(true);
-      const data = await leadService.getLeads();
-      setLeads(data);
-      setError(null);
-    } catch (err) {
-      setError('Failed to fetch leads. Backend may not be running.');
-      console.error('Error fetching leads:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Mortgage CRM Frontend</h1>
-        <p>Lead Management System</p>
-      </header>
-      <main className="App-main">
-        {loading && <p>Loading leads...</p>}
-        {error && <p className="error">{error}</p>}
-        {!loading && !error && <LeadList leads={leads} />}
-      </main>
-      <AssistantWidget />
-    </div>
+    <Router>
+      <div className="App">
+        <SidebarNavigation />
+        <div className="main-content">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/leads" element={<LeadList />} />
+            <Route path="/active-loans" element={<ActiveLoans />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path="/scorecard" element={<Scorecard />} />
+          </Routes>
+        </div>
+        <AssistantWidget />
+      </div>
+    </Router>
   );
 }
 
