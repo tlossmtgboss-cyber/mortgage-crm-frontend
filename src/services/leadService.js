@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Backend API URL - Railway will inject this via environment variable
-const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080/api';
+// Use relative API path for Vercel proxy
+const API_URL = '/api';
 
 const leadService = {
   // Get all leads
