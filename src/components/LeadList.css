@@ -145,7 +145,7 @@
   transform: translateY(0);
 }
 
-/* Modal Styles */
+/* Modal Styles - Fixed to ensure modal always appears above content */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -156,11 +156,12 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
   animation: fadeIn 0.3s ease-in-out;
 }
 
 .modal-content {
+  position: relative;
   background: white;
   border-radius: 12px;
   padding: 2rem;
@@ -169,6 +170,7 @@
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
   animation: slideUp 0.3s ease-in-out;
 }
 
