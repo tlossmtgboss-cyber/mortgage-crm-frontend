@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
+import Login from './components/Login';
 import SidebarNavigation from './components/SidebarNavigation';
 import Dashboard from './components/Dashboard';
 import LeadList from './components/LeadList';
@@ -12,13 +13,16 @@ import Scorecard from './components/Scorecard';
 import AssistantWidget from './components/AssistantWidget';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Fetch leads on component mount
   useEffect(() => {
-    fetchLeads();
-  }, []);
+    if (isAuthenticated) {
+      fetchLeads();
+    }
+  }, [isAuthenticated]);
 
   const fetchLeads = async () => {
     try {
@@ -34,10 +38,22 @@ function App() {
     }
   };
 
+  const handleLogin = (credentials) => {
+    // Handle authentication logic here
+    // For now, just set isAuthenticated to true
+    console.log('Login with:', credentials);
+    setIsAuthenticated(true);
+  };
+
   const handleLeadAdded = (newLead) => {
     // Add the new lead to the leads array
     setLeads(prevLeads => [newLead, ...prevLeads]);
   };
+
+  // If not authenticated, show login page
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />;
+  }
 
   // LeadsPage component to wrap LeadList with state
   const LeadsPage = () => (
