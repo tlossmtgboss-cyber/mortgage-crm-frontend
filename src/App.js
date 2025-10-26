@@ -3,8 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import Login from './Login';
 import Register from './Register';
-import SidebarNavigation from './components/SidebarNavigation';
-import Dashboard from './components/Dashboard';
+import Dashboard from './pages/Dashboard';
 import LeadList from './components/LeadList';
 import ActiveLoans from './components/ActiveLoans';
 import Portfolio from './components/Portfolio';
@@ -52,79 +51,16 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/" element={
-            <>
-              <SidebarNavigation />
-              <div className="main-content">
-                <Dashboard />
-              </div>
-              <AssistantWidget />
-            </>
-          } />
-          <Route path="/dashboard" element={
-            <>
-              <SidebarNavigation />
-              <div className="main-content">
-                <Dashboard />
-              </div>
-              <AssistantWidget />
-            </>
-          } />
-          <Route path="/leads" element={
-            <>
-              <SidebarNavigation />
-              <div className="main-content">
-                <LeadsPage />
-              </div>
-              <AssistantWidget />
-            </>
-          } />
-          <Route path="/active-loans" element={
-            <>
-              <SidebarNavigation />
-              <div className="main-content">
-                <ActiveLoans />
-              </div>
-              <AssistantWidget />
-            </>
-          } />
-          <Route path="/portfolio" element={
-            <>
-              <SidebarNavigation />
-              <div className="main-content">
-                <Portfolio />
-              </div>
-              <AssistantWidget />
-            </>
-          } />
-          <Route path="/tasks" element={
-            <>
-              <SidebarNavigation />
-              <div className="main-content">
-                <Tasks />
-              </div>
-              <AssistantWidget />
-            </>
-          } />
-          <Route path="/calendar" element={
-            <>
-              <SidebarNavigation />
-              <div className="main-content">
-                <Calendar />
-              </div>
-              <AssistantWidget />
-            </>
-          } />
-          <Route path="/scorecard" element={
-            <>
-              <SidebarNavigation />
-              <div className="main-content">
-                <Scorecard />
-              </div>
-              <AssistantWidget />
-            </>
-          } />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/leads" element={<LeadsPage />} />
+          <Route path="/active-loans" element={<ActiveLoans />} />
+          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/tasks" element={<Tasks />} />
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/scorecard" element={<Scorecard />} />
         </Routes>
+        <AssistantWidget />
       </div>
     </Router>
   );
