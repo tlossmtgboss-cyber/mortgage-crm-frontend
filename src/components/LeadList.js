@@ -36,7 +36,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
     setError('');
 
     try {
-      const response = await fetch('/api/leads', {
+      const response = await fetch(process.env.REACT_APP_API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -104,8 +104,8 @@ const LeadList = ({ leads, onLeadAdded }) => {
   if (!leads || leads.length === 0) {
     return (
       <div className="lead-list-empty">
-        <p>No leads found</p>
-        <p>Start by adding your first mortgage lead to the system.</p>
+        No leads found
+        Start by adding your first mortgage lead to the system.
         <button className="btn-add-lead" onClick={() => setShowModal(true)}>
           Add New Lead
         </button>
@@ -116,7 +116,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
   return (
     <div className="lead-list">
       <div className="lead-list-header">
-        <h2>Lead List</h2>
+        Lead List
         <button className="btn-add-lead" onClick={() => setShowModal(true)}>
           + Add New Lead
         </button>
@@ -124,33 +124,33 @@ const LeadList = ({ leads, onLeadAdded }) => {
       
       <div className="lead-cards">
         {leads.map((lead) => (
-          <div className="lead-card" key={lead.id}>
+          <div key={lead.id} className="lead-card">
             <div className="lead-header">
-              <h3>{lead.borrowerName}</h3>
+              {lead.borrowerName}
               <span className={`status status-${lead.status?.toLowerCase() || 'new'}`}>
                 {lead.status || 'NEW'}
               </span>
             </div>
             <div className="lead-details">
-              <p><strong>Email:</strong> {lead.email}</p>
-              <p><strong>Phone:</strong> {lead.phone || 'N/A'}</p>
-              <p><strong>Property Address:</strong> {lead.propertyAddress || 'N/A'}</p>
-              <p><strong>Loan Purpose:</strong> {lead.loanPurpose || 'N/A'}</p>
-              <p><strong>Requested Amount:</strong> ${lead.requestedLoanAmount?.toLocaleString() || '0'}</p>
-              <p><strong>Property Type:</strong> {lead.propertyType || 'N/A'}</p>
-              <p><strong>Credit Score:</strong> {lead.estimatedCreditScore || 'N/A'}</p>
-              <p><strong>Closing Date:</strong> {lead.estimatedClosingDate || 'N/A'}</p>
-              <p><strong>Contact Method:</strong> {lead.preferredContactMethod || 'N/A'}</p>
-              <p><strong>Referral Source:</strong> {lead.referralSource || 'N/A'}</p>
+              Email: {lead.email}
+              Phone: {lead.phone || 'N/A'}
+              Property Address: {lead.propertyAddress || 'N/A'}
+              Loan Purpose: {lead.loanPurpose || 'N/A'}
+              Requested Amount: ${lead.requestedLoanAmount?.toLocaleString() || '0'}
+              Property Type: {lead.propertyType || 'N/A'}
+              Credit Score: {lead.estimatedCreditScore || 'N/A'}
+              Closing Date: {lead.estimatedClosingDate || 'N/A'}
+              Contact Method: {lead.preferredContactMethod || 'N/A'}
+              Referral Source: {lead.referralSource || 'N/A'}
               {lead.coBorrowerInfo && (
-                <p><strong>Co-Borrower:</strong> {lead.coBorrowerInfo}</p>
+                Co-Borrower: {lead.coBorrowerInfo}
               )}
               {lead.notes && (
-                <p><strong>Notes:</strong> {lead.notes}</p>
+                Notes: {lead.notes}
               )}
             </div>
             <div className="lead-meta">
-              <small>Created: {new Date(lead.createdAt).toLocaleDateString()}</small>
+              Created: {new Date(lead.createdAt).toLocaleDateString()}
             </div>
           </div>
         ))}
@@ -161,7 +161,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
         <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Add New Lead</h2>
+              Add New Lead
               <button className="btn-close" onClick={handleCloseModal}>×</button>
             </div>
             
@@ -192,6 +192,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                     required
                   />
                 </div>
+
                 <div className="form-group">
                   <label htmlFor="phone">Phone Number *</label>
                   <input
@@ -234,6 +235,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                     <option value="Home Equity">Home Equity</option>
                   </select>
                 </div>
+
                 <div className="form-group">
                   <label htmlFor="requestedLoanAmount">Requested Loan Amount *</label>
                   <input
@@ -265,6 +267,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                     <option value="Multi-family">Multi-family</option>
                   </select>
                 </div>
+
                 <div className="form-group">
                   <label htmlFor="estimatedCreditScore">Estimated Credit Score</label>
                   <input
@@ -291,6 +294,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                     onChange={handleInputChange}
                   />
                 </div>
+
                 <div className="form-group">
                   <label htmlFor="preferredContactMethod">Preferred Contact Method *</label>
                   <select
