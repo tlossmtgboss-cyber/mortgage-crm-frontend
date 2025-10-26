@@ -39,7 +39,7 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post('https://mortgage-crm-backend-production.up.railway.app/api/users/register', {
+      const response = await axios.post('https://mortgage-crm-production-a24e.up.railway.app/api/users/register', {
         username: formData.email,
         email: formData.email,
         password: formData.password,
