@@ -36,8 +36,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
     setError('');
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-      const response = await fetch(`${apiUrl}/api/leads`, {
+      const response = await fetch('/api/leads', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,12 +82,12 @@ const LeadList = ({ leads, onLeadAdded }) => {
   return (
     <div className="lead-list-container">
       <div className="lead-list-header">
-        <h2>Leads</h2>
+        Leads
         <button className="btn-add-lead" onClick={() => setShowModal(true)}>
           + Add New Lead
         </button>
       </div>
-
+      
       <table className="lead-table">
         <thead>
           <tr>
@@ -119,7 +118,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
       {showModal && (
         <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>Add New Lead</h3>
+            <h2>Add New Lead</h2>
             {error && <div className="error-message">{error}</div>}
             <form onSubmit={handleSubmit}>
               <div className="form-group">
@@ -133,6 +132,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   required
                 />
               </div>
+              
               <div className="form-group">
                 <label htmlFor="email">Email *</label>
                 <input
@@ -144,6 +144,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   required
                 />
               </div>
+              
               <div className="form-group">
                 <label htmlFor="phone">Phone *</label>
                 <input
@@ -155,6 +156,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   required
                 />
               </div>
+              
               <div className="form-group">
                 <label htmlFor="propertyAddress">Property Address</label>
                 <input
@@ -165,6 +167,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   onChange={handleInputChange}
                 />
               </div>
+              
               <div className="form-group">
                 <label htmlFor="loanPurpose">Loan Purpose</label>
                 <select
@@ -180,6 +183,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   <option value="Home Equity">Home Equity</option>
                 </select>
               </div>
+              
               <div className="form-group">
                 <label htmlFor="requestedLoanAmount">Requested Loan Amount</label>
                 <input
@@ -191,6 +195,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   placeholder="$"
                 />
               </div>
+              
               <div className="form-group">
                 <label htmlFor="propertyType">Property Type</label>
                 <select
@@ -207,6 +212,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   <option value="Other">Other</option>
                 </select>
               </div>
+              
               <div className="form-group">
                 <label htmlFor="estimatedCreditScore">Estimated Credit Score</label>
                 <select
@@ -219,9 +225,10 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   <option value="Excellent (740+)">Excellent (740+)</option>
                   <option value="Good (700-739)">Good (700-739)</option>
                   <option value="Fair (650-699)">Fair (650-699)</option>
-                  <option value="Poor (<650)">Poor (&lt;650)</option>
+                  <option value="Poor (<650)">Poor (<650)</option>
                 </select>
               </div>
+              
               <div className="form-group">
                 <label htmlFor="estimatedClosingDate">Estimated Closing Date</label>
                 <input
@@ -232,6 +239,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   onChange={handleInputChange}
                 />
               </div>
+              
               <div className="form-group">
                 <label htmlFor="preferredContactMethod">Preferred Contact Method</label>
                 <select
@@ -246,6 +254,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   <option value="Text">Text</option>
                 </select>
               </div>
+              
               <div className="form-group">
                 <label htmlFor="referralSource">Referral Source</label>
                 <select
@@ -262,6 +271,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   <option value="Other">Other</option>
                 </select>
               </div>
+              
               <div className="form-group">
                 <label htmlFor="coBorrowerInfo">Co-Borrower Information</label>
                 <input
@@ -273,6 +283,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   placeholder="Name, contact info, etc."
                 />
               </div>
+              
               <div className="form-group">
                 <label htmlFor="notes">Notes/Comments</label>
                 <textarea
@@ -284,11 +295,20 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   placeholder="Add any special circumstances, priorities, or needs..."
                 ></textarea>
               </div>
+              
               <div className="form-actions">
-                <button className="btn-cancel" onClick={handleCloseModal} type="button">
+                <button 
+                  type="button"
+                  className="btn-cancel" 
+                  onClick={handleCloseModal}
+                >
                   Cancel
                 </button>
-                <button className="btn-submit" disabled={loading} type="submit">
+                <button 
+                  type="submit"
+                  className="btn-submit" 
+                  disabled={loading}
+                >
                   {loading ? 'Adding...' : 'Add Lead'}
                 </button>
               </div>
