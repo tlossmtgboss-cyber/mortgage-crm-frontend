@@ -104,7 +104,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
   if (!leads || leads.length === 0) {
     return (
       <div className="lead-list-empty">
-        <h3>No leads found</h3>
+        <p>No leads found</p>
         <p>Start by adding your first mortgage lead to the system.</p>
         <button className="btn-add-lead" onClick={() => setShowModal(true)}>
           Add New Lead
@@ -127,7 +127,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
           <div className="lead-card" key={lead.id}>
             <div className="lead-header">
               <h3>{lead.borrowerName}</h3>
-              <span className={`status status-${lead.status?.toLowerCase()}`}>
+              <span className={`status status-${lead.status?.toLowerCase() || 'new'}`}>
                 {lead.status || 'NEW'}
               </span>
             </div>
