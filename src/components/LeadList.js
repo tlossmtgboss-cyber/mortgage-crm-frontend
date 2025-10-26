@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './LeadList.css';
+import leadService from '../services/leadService';
 
-const LeadList = ({ leads, onLeadAdded }) => {
+const LeadList = () => {
+  const [leads, setLeads] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     borrowerName: '',
@@ -22,6 +24,21 @@ const LeadList = ({ leads, onLeadAdded }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Fetch leads on component mount
+  useEffect(() => {
+    fetchLeads();
+  }, []);
+
+  const fetchLeads = async () => {
+    try {
+      const data = await leadService.getLeads();
+      setLeads(data);
+    } catch (err) {
+      console.error('Error fetching leads:', err);
+      setError('Failed to load leads');
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -36,20 +53,8 @@ const LeadList = ({ leads, onLeadAdded }) => {
     setError('');
 
     try {
-      const response = await fetch('/api/leads', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to add lead');
-      }
-
-      const result = await response.json();
-      onLeadAdded(result);
+      const newLead = await leadService.createLead(formData);
+      setLeads([...leads, newLead]);
       setShowModal(false);
       setFormData({
         borrowerName: '',
@@ -68,7 +73,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
         status: 'NEW'
       });
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Failed to add lead');
     } finally {
       setLoading(false);
     }
@@ -82,7 +87,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
   return (
     <div className="lead-list-container">
       <div className="lead-list-header">
-        Leads
+        <h2>Leads</h2>
         <button className="btn-add-lead" onClick={() => setShowModal(true)}>
           + Add New Lead
         </button>
@@ -102,7 +107,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
         </thead>
         <tbody>
           {leads.map((lead) => (
-            <tr key={lead._id}>
+            <tr key={lead.id}>
               <td>{lead.borrowerName}</td>
               <td>{lead.email}</td>
               <td>{lead.phone}</td>
@@ -118,7 +123,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
       {showModal && (
         <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>Add New Lead</h2>
+            <h3>Add New Lead</h3>
             {error && <div className="error-message">{error}</div>}
             <form onSubmit={handleSubmit}>
               <div className="form-group">
@@ -132,7 +137,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   required
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="email">Email *</label>
                 <input
@@ -144,7 +149,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   required
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="phone">Phone *</label>
                 <input
@@ -156,7 +161,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   required
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="propertyAddress">Property Address</label>
                 <input
@@ -167,7 +172,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   onChange={handleInputChange}
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="loanPurpose">Loan Purpose</label>
                 <select
@@ -183,7 +188,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   <option value="Home Equity">Home Equity</option>
                 </select>
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="requestedLoanAmount">Requested Loan Amount</label>
                 <input
@@ -195,7 +200,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   placeholder="$"
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="propertyType">Property Type</label>
                 <select
@@ -212,7 +217,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   <option value="Other">Other</option>
                 </select>
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="estimatedCreditScore">Estimated Credit Score</label>
                 <select
@@ -228,7 +233,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   <option value="Poor (<650)">Poor (<650)</option>
                 </select>
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="estimatedClosingDate">Estimated Closing Date</label>
                 <input
@@ -239,7 +244,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   onChange={handleInputChange}
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="preferredContactMethod">Preferred Contact Method</label>
                 <select
@@ -254,7 +259,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   <option value="Text">Text</option>
                 </select>
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="referralSource">Referral Source</label>
                 <select
@@ -271,7 +276,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   <option value="Other">Other</option>
                 </select>
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="coBorrowerInfo">Co-Borrower Information</label>
                 <input
@@ -283,7 +288,7 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   placeholder="Name, contact info, etc."
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="notes">Notes/Comments</label>
                 <textarea
@@ -295,20 +300,12 @@ const LeadList = ({ leads, onLeadAdded }) => {
                   placeholder="Add any special circumstances, priorities, or needs..."
                 ></textarea>
               </div>
-              
+
               <div className="form-actions">
-                <button 
-                  type="button"
-                  className="btn-cancel" 
-                  onClick={handleCloseModal}
-                >
+                <button type="button" className="btn-cancel" onClick={handleCloseModal}>
                   Cancel
                 </button>
-                <button 
-                  type="submit"
-                  className="btn-submit" 
-                  disabled={loading}
-                >
+                <button type="submit" className="btn-submit" disabled={loading}>
                   {loading ? 'Adding...' : 'Add Lead'}
                 </button>
               </div>
