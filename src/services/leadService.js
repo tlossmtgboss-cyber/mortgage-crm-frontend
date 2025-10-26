@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Backend API URL - Railway will inject this via environment variable
-const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080/api';
+// Backend API URL - uses environment variable
+const API_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
 
 const leadService = {
   // Get all leads
