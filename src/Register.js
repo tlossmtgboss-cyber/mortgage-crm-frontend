@@ -10,6 +10,7 @@ const Register = () => {
     confirmPassword: '',
     role: 'user'
   });
+
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ const Register = () => {
 
     try {
       const response = await axios.post('https://mortgage-crm-backend-production.up.railway.app/api/users/register', {
-        name: formData.name,
+        username: formData.email,
         email: formData.email,
         password: formData.password,
         role: formData.role
@@ -58,8 +59,10 @@ const Register = () => {
     <div style={styles.container}>
       <div style={styles.card}>
         <h2 style={styles.title}>Register for Mortgage CRM</h2>
+        
         {error && <div style={styles.error}>{error}</div>}
         {message && <div style={styles.success}>{message}</div>}
+        
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.inputGroup}>
             <label style={styles.label}>Full Name</label>
@@ -73,6 +76,7 @@ const Register = () => {
               placeholder="Enter your full name"
             />
           </div>
+
           <div style={styles.inputGroup}>
             <label style={styles.label}>Email</label>
             <input
@@ -85,6 +89,7 @@ const Register = () => {
               placeholder="Enter your email"
             />
           </div>
+
           <div style={styles.inputGroup}>
             <label style={styles.label}>Password</label>
             <input
@@ -97,6 +102,7 @@ const Register = () => {
               placeholder="Enter your password"
             />
           </div>
+
           <div style={styles.inputGroup}>
             <label style={styles.label}>Confirm Password</label>
             <input
@@ -109,6 +115,7 @@ const Register = () => {
               placeholder="Confirm your password"
             />
           </div>
+
           <div style={styles.inputGroup}>
             <label style={styles.label}>Role</label>
             <select
@@ -121,10 +128,12 @@ const Register = () => {
               <option value="admin">Admin</option>
             </select>
           </div>
-          <button type="submit" style={styles.button}>
+
+          <button style={styles.button} type="submit">
             Register
           </button>
         </form>
+        
         <p style={styles.loginLink}>
           Already have an account? <a href="/login" style={styles.link}>Login here</a>
         </p>
