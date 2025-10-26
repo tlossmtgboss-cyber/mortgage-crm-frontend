@@ -24,7 +24,7 @@ function App() {
 
   const fetchLeads = async () => {
     try {
-      const response = await fetch('/api/leads');
+      const response = await fetch(process.env.REACT_APP_API_URL);
       if (response.ok) {
         const data = await response.json();
         setLeads(data);
