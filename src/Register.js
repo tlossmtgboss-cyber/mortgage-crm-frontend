@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// Use environment variable for API URL
+const API_URL = process.env.REACT_APP_API_URL || '/api';
+
 const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -39,7 +42,7 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post('https://mortgage-crm-production-a24e.up.railway.app/api/users/register', {
+      const response = await axios.post(`${API_URL}/users/register`, {
         username: formData.email,
         email: formData.email,
         password: formData.password,
