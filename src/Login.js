@@ -18,8 +18,8 @@ const Login = () => {
     setMessage('');
 
     try {
-      const response = await axios.post('https://mortgage-crm-backend-production.up.railway.app/api/users/login', {
-        email,
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/login`, {
+        identifier: email,
         password
       });
 
@@ -52,7 +52,7 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post('https://mortgage-crm-backend-production.up.railway.app/api/users/update-password', {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/update-password`, {
         email,
         currentPassword: password,
         newPassword
@@ -75,8 +75,10 @@ const Login = () => {
         <div style={styles.card}>
           <h2 style={styles.title}>Update Password</h2>
           <p style={styles.subtitle}>Please set a new password for your account</p>
+          
           {error && <div style={styles.error}>{error}</div>}
           {message && <div style={styles.success}>{message}</div>}
+          
           <form onSubmit={handlePasswordUpdate} style={styles.form}>
             <div style={styles.inputGroup}>
               <label style={styles.label}>New Password</label>
@@ -89,6 +91,7 @@ const Login = () => {
                 placeholder="Enter new password"
               />
             </div>
+            
             <div style={styles.inputGroup}>
               <label style={styles.label}>Confirm Password</label>
               <input
@@ -100,6 +103,7 @@ const Login = () => {
                 placeholder="Confirm new password"
               />
             </div>
+            
             <button type="submit" style={styles.button}>
               Update Password
             </button>
@@ -113,8 +117,10 @@ const Login = () => {
     <div style={styles.container}>
       <div style={styles.card}>
         <h2 style={styles.title}>Login to Mortgage CRM</h2>
+        
         {error && <div style={styles.error}>{error}</div>}
         {message && <div style={styles.success}>{message}</div>}
+        
         <form onSubmit={handleLogin} style={styles.form}>
           <div style={styles.inputGroup}>
             <label style={styles.label}>Email</label>
@@ -127,6 +133,7 @@ const Login = () => {
               placeholder="Enter your email"
             />
           </div>
+          
           <div style={styles.inputGroup}>
             <label style={styles.label}>Password</label>
             <input
@@ -138,10 +145,12 @@ const Login = () => {
               placeholder="Enter your password"
             />
           </div>
+          
           <button type="submit" style={styles.button}>
             Login
           </button>
         </form>
+        
         <p style={styles.registerLink}>
           Don't have an account? <a href="/register" style={styles.link}>Register here</a>
         </p>
