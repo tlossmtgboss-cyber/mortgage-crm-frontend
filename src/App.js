@@ -27,7 +27,7 @@ function App() {
 
   const fetchLeads = async () => {
     try {
-      const response = await fetch(`${API_URL}/leads`);
+      const response = await fetch(`${API_URL}/leads/`);
       if (response.ok) {
         const data = await response.json();
         setLeads(data);
