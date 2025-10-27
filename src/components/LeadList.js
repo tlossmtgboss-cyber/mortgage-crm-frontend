@@ -53,7 +53,7 @@ export default function LeadList() {
     setLoading(true);
     setError('');
     try {
-      const data = await leadService.getAllLeads();
+      const data = await leadService.getLeads();
       setRows(data);
     } catch (err) {
       setError(err.response?.data?.error || err.message);
@@ -182,10 +182,11 @@ export default function LeadList() {
   }, [rows, search]);
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box p={3} sx={{ maxWidth: '100%' }}>
       <Typography variant="h4" mb={3}>
         Leads
       </Typography>
+
       <Stack direction="row" spacing={2} mb={3}>
         <TextField
           placeholder="Search leads..."
@@ -205,6 +206,7 @@ export default function LeadList() {
           Add Lead
         </Button>
       </Stack>
+
       <DataGrid
         rows={filteredRows}
         columns={columns}
@@ -218,18 +220,18 @@ export default function LeadList() {
         pageSizeOptions={[10, 25, 50]}
       />
 
-      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+      <Dialog fullWidth maxWidth="sm" open={open} onClose={handleClose}>
         <DialogTitle>
-          <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
             <Typography variant="h6">
               {editing ? 'Edit Lead' : 'Add New Lead'}
             </Typography>
-            <IconButton onClick={handleClose} size="small">
+            <IconButton size="small" onClick={handleClose}>
               <CloseIcon />
             </IconButton>
           </Stack>
         </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
+        <DialogContent sx={{ pt: 2 }}>
           <Box sx={{ mt: 1 }}>
             <Stack spacing={1.5}>
               <Grid container spacing={1.5}>
@@ -257,6 +259,7 @@ export default function LeadList() {
                   />
                 </Grid>
               </Grid>
+
               <Grid container spacing={1.5}>
                 <Grid item xs={6}>
                   <TextField
@@ -280,6 +283,7 @@ export default function LeadList() {
                   />
                 </Grid>
               </Grid>
+
               <Grid container spacing={1.5}>
                 <Grid item xs={6}>
                   <TextField
@@ -302,6 +306,7 @@ export default function LeadList() {
                   />
                 </Grid>
               </Grid>
+
               <Grid container spacing={1.5}>
                 <Grid item xs={6}>
                   <TextField
@@ -326,6 +331,7 @@ export default function LeadList() {
                   />
                 </Grid>
               </Grid>
+
               <TextField
                 name="propertyAddress"
                 label="Property Address"
@@ -334,6 +340,7 @@ export default function LeadList() {
                 fullWidth
                 size="small"
               />
+
               <Grid container spacing={1.5}>
                 <Grid item xs={6}>
                   <TextField
@@ -356,6 +363,7 @@ export default function LeadList() {
                   />
                 </Grid>
               </Grid>
+
               <TextField
                 name="coBorrowerInfo"
                 label="Co-borrower Info"
@@ -364,6 +372,7 @@ export default function LeadList() {
                 fullWidth
                 size="small"
               />
+
               <TextField
                 name="notes"
                 label="Notes"
@@ -377,12 +386,14 @@ export default function LeadList() {
             </Stack>
           </Box>
         </DialogContent>
-        <DialogActions sx={{
-          borderTop: 1,
-          borderColor: 'divider',
-          px: 2,
-          py: 1.5
-        }}>
+        <DialogActions
+          sx={{
+            borderTop: 1,
+            borderColor: 'divider',
+            px: 2,
+            py: 1.5
+          }}
+        >
           <Button
             onClick={handleClose}
             disabled={saving}
@@ -401,6 +412,7 @@ export default function LeadList() {
           </Button>
         </DialogActions>
       </Dialog>
+
       {error && (
         <Typography color="error" mt={2}>
           {error}
