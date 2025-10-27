@@ -42,7 +42,6 @@ export default function LeadList() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null); // row or null
@@ -54,9 +53,9 @@ export default function LeadList() {
     setError('');
     try {
       const data = await leadService.getLeads();
-      setRows(Array.isArray(data) ? data : []);
-    } catch (e) {
-      setError(e?.message || 'Failed to load leads');
+      setRows(data);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -66,105 +65,91 @@ export default function LeadList() {
     loadLeads();
   }, []);
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter((r) =>
-      [
-        r.borrowerName,
-        r.email,
-        r.phone,
-        r.propertyAddress,
-        r.loanPurpose,
-        r.status,
-      ]
-        .filter(Boolean)
-        .some((v) => String(v).toLowerCase().includes(q))
-    );
-  }, [rows, search]);
-
-  const handleOpenAdd = () => {
-    setEditing(null);
-    setForm(defaultForm);
-    setOpen(true);
-  };
-
-  const handleOpenEdit = (row) => {
-    setEditing(row);
-    setForm({ ...defaultForm, ...row });
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    if (!saving) setOpen(false);
-  };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this lead?')) return;
-    try {
-      await leadService.deleteLead(id);
-      await loadLeads();
-    } catch (e) {
-      alert(e?.message || 'Failed to delete lead');
-    }
+  const handleOpenAdd = () => {
+    setForm(defaultForm);
+    setEditing(null);
+    setOpen(true);
+  };
+
+  const handleOpenEdit = (row) => {
+    setForm(row);
+    setEditing(row);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setForm(defaultForm);
+    setEditing(null);
   };
 
   const handleSubmit = async (e) => {
-    e?.preventDefault?.();
+    e.preventDefault();
     setSaving(true);
+    setError('');
     try {
-      if (editing?.id) {
+      if (editing) {
         await leadService.updateLead(editing.id, form);
       } else {
         await leadService.createLead(form);
       }
-      setOpen(false);
       await loadLeads();
-    } catch (e2) {
-      alert(e2?.message || 'Failed to save lead');
+      handleClose();
+    } catch (err) {
+      setError(err.message);
     } finally {
       setSaving(false);
     }
   };
 
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this lead?')) return;
+    setError('');
+    try {
+      await leadService.deleteLead(id);
+      await loadLeads();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const filteredRows = useMemo(() => {
+    if (!search.trim()) return rows;
+    const searchLower = search.toLowerCase();
+    return rows.filter((row) =>
+      Object.values(row).some((val) =>
+        String(val).toLowerCase().includes(searchLower)
+      )
+    );
+  }, [rows, search]);
+
   const columns = [
-    { field: 'borrowerName', headerName: 'Borrower', flex: 1, minWidth: 160 },
-    { field: 'email', headerName: 'Email', flex: 1, minWidth: 160 },
-    { field: 'phone', headerName: 'Phone', flex: 1, minWidth: 140 },
-    { field: 'loanPurpose', headerName: 'Purpose', flex: 1, minWidth: 140 },
+    { field: 'borrowerName', headerName: 'Borrower Name', width: 180 },
     {
       field: 'status',
       headerName: 'Status',
-      width: 130,
+      width: 120,
       renderCell: (params) => (
-        <Chip
-          size="small"
-          label={params.value || 'NEW'}
-          color={
-            params.value === 'CLOSED'
-              ? 'success'
-              : params.value === 'LOST'
-              ? 'error'
-              : 'default'
-          }
-        />
+        <Chip label={params.value} size="small" color={params.value === 'NEW' ? 'primary' : 'default'} />
       ),
     },
+    { field: 'email', headerName: 'Email', width: 200 },
+    { field: 'phone', headerName: 'Phone', width: 140 },
+    { field: 'loanPurpose', headerName: 'Loan Purpose', width: 140 },
+    { field: 'requestedLoanAmount', headerName: 'Loan Amount', width: 150 },
     {
       field: 'actions',
       headerName: 'Actions',
-      sortable: false,
-      filterable: false,
       width: 120,
       renderCell: (params) => (
-        <Stack direction="row" spacing={1}>
+        <Stack direction="row" spacing={0.5}>
           <Tooltip title="Edit">
-            <IconButton size="small" onClick={() => handleOpenEdit(params.row)}>
+            <IconButton size="small" color="primary" onClick={() => handleOpenEdit(params.row)}>
               <EditIcon fontSize="small" />
             </IconButton>
           </Tooltip>
@@ -179,85 +164,235 @@ export default function LeadList() {
   ];
 
   return (
-    <Box p={2}>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ xs: 'stretch', sm: 'center' }} justifyContent="space-between" mb={2}>
-        <Typography variant="h5">Leads</Typography>
-        <Stack direction="row" spacing={1} alignItems="center" flex={1}>
-          <SearchIcon color="action" />
-          <TextField
-            placeholder="Search leads"
-            size="small"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            fullWidth
-          />
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
-            Add Lead
-          </Button>
-        </Stack>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Lead Management
+      </Typography>
+      <Stack direction="row" spacing={2} mb={2}>
+        <TextField
+          placeholder="Search leads..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          size="small"
+          InputProps={{
+            startAdornment: <SearchIcon sx={{ mr: 1, color: 'action.active' }} />,
+          }}
+          sx={{ flexGrow: 1, maxWidth: 400 }}
+        />
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
+          Add New Lead
+        </Button>
       </Stack>
-
-      <div style={{ height: 520, width: '100%' }}>
+      <div style={{ height: 600, width: '100%' }}>
         <DataGrid
-          rows={filtered}
+          rows={filteredRows}
           columns={columns}
           loading={loading}
-          disableRowSelectionOnClick
           pageSizeOptions={[10, 25, 50]}
-          initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
-          getRowId={(row) => row.id || row._id || row.email + row.phone}
+          initialState={{
+            pagination: { paginationModel: { pageSize: 10 } },
+          }}
         />
       </div>
 
-      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
-        <DialogTitle>
-          {editing ? 'Edit Lead' : 'Add Lead'}
-          <IconButton onClick={handleClose} sx={{ position: 'absolute', right: 8, top: 8 }}>
+      {/* Enhanced Modal Dialog for Lead Form */}
+      <Dialog 
+        open={open} 
+        onClose={handleClose} 
+        maxWidth="md" 
+        fullWidth
+        scroll="paper"
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: 24,
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          borderBottom: 1, 
+          borderColor: 'divider',
+          pb: 2,
+          pr: 6
+        }}>
+          {editing ? 'Edit Lead' : 'Add New Lead'}
+          <IconButton 
+            onClick={handleClose} 
+            sx={{ 
+              position: 'absolute', 
+              right: 8, 
+              top: 8,
+              color: 'grey.500',
+              '&:hover': {
+                color: 'grey.700',
+                backgroundColor: 'grey.100',
+              }
+            }}
+          >
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent>
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-              <TextField name="borrowerName" label="Borrower Name" value={form.borrowerName} onChange={handleChange} fullWidth required />
-              <TextField name="status" label="Status" value={form.status} onChange={handleChange} fullWidth />
-            </Stack>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mt={2}>
-              <TextField name="email" label="Email" value={form.email} onChange={handleChange} fullWidth />
-              <TextField name="phone" label="Phone" value={form.phone} onChange={handleChange} fullWidth />
-            </Stack>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mt={2}>
-              <TextField name="propertyAddress" label="Property Address" value={form.propertyAddress} onChange={handleChange} fullWidth />
-              <TextField name="loanPurpose" label="Loan Purpose" value={form.loanPurpose} onChange={handleChange} fullWidth />
-            </Stack>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mt={2}>
-              <TextField name="requestedLoanAmount" label="Requested Loan Amount" value={form.requestedLoanAmount} onChange={handleChange} fullWidth />
-              <TextField name="propertyType" label="Property Type" value={form.propertyType} onChange={handleChange} fullWidth />
-            </Stack>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mt={2}>
-              <TextField name="estimatedCreditScore" label="Est. Credit Score" value={form.estimatedCreditScore} onChange={handleChange} fullWidth />
-              <TextField name="estimatedClosingDate" label="Est. Closing Date" value={form.estimatedClosingDate} onChange={handleChange} fullWidth />
-            </Stack>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mt={2}>
-              <TextField name="preferredContactMethod" label="Preferred Contact" value={form.preferredContactMethod} onChange={handleChange} fullWidth />
-              <TextField name="referralSource" label="Referral Source" value={form.referralSource} onChange={handleChange} fullWidth />
-            </Stack>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mt={2}>
-              <TextField name="coBorrowerInfo" label="Co-borrower Info" value={form.coBorrowerInfo} onChange={handleChange} fullWidth />
-              <TextField name="notes" label="Notes" value={form.notes} onChange={handleChange} fullWidth multiline rows={2} />
+        <DialogContent sx={{ pt: 3, pb: 2 }}>
+          <Box component="form" onSubmit={handleSubmit}>
+            <Stack spacing={2.5}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                <TextField 
+                  name="borrowerName" 
+                  label="Borrower Name" 
+                  value={form.borrowerName} 
+                  onChange={handleChange} 
+                  fullWidth 
+                  required
+                  size="small"
+                />
+                <TextField 
+                  name="status" 
+                  label="Status" 
+                  value={form.status} 
+                  onChange={handleChange} 
+                  fullWidth
+                  size="small"
+                />
+              </Stack>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                <TextField 
+                  name="email" 
+                  label="Email" 
+                  type="email"
+                  value={form.email} 
+                  onChange={handleChange} 
+                  fullWidth
+                  size="small"
+                />
+                <TextField 
+                  name="phone" 
+                  label="Phone" 
+                  value={form.phone} 
+                  onChange={handleChange} 
+                  fullWidth
+                  size="small"
+                />
+              </Stack>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                <TextField 
+                  name="propertyAddress" 
+                  label="Property Address" 
+                  value={form.propertyAddress} 
+                  onChange={handleChange} 
+                  fullWidth
+                  size="small"
+                />
+                <TextField 
+                  name="loanPurpose" 
+                  label="Loan Purpose" 
+                  value={form.loanPurpose} 
+                  onChange={handleChange} 
+                  fullWidth
+                  size="small"
+                />
+              </Stack>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                <TextField 
+                  name="requestedLoanAmount" 
+                  label="Requested Loan Amount" 
+                  value={form.requestedLoanAmount} 
+                  onChange={handleChange} 
+                  fullWidth
+                  size="small"
+                />
+                <TextField 
+                  name="propertyType" 
+                  label="Property Type" 
+                  value={form.propertyType} 
+                  onChange={handleChange} 
+                  fullWidth
+                  size="small"
+                />
+              </Stack>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                <TextField 
+                  name="estimatedCreditScore" 
+                  label="Est. Credit Score" 
+                  value={form.estimatedCreditScore} 
+                  onChange={handleChange} 
+                  fullWidth
+                  size="small"
+                />
+                <TextField 
+                  name="estimatedClosingDate" 
+                  label="Est. Closing Date" 
+                  type="date"
+                  value={form.estimatedClosingDate} 
+                  onChange={handleChange} 
+                  fullWidth
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Stack>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                <TextField 
+                  name="preferredContactMethod" 
+                  label="Preferred Contact" 
+                  value={form.preferredContactMethod} 
+                  onChange={handleChange} 
+                  fullWidth
+                  size="small"
+                />
+                <TextField 
+                  name="referralSource" 
+                  label="Referral Source" 
+                  value={form.referralSource} 
+                  onChange={handleChange} 
+                  fullWidth
+                  size="small"
+                />
+              </Stack>
+              <TextField 
+                name="coBorrowerInfo" 
+                label="Co-borrower Info" 
+                value={form.coBorrowerInfo} 
+                onChange={handleChange} 
+                fullWidth
+                size="small"
+              />
+              <TextField 
+                name="notes" 
+                label="Notes" 
+                value={form.notes} 
+                onChange={handleChange} 
+                fullWidth 
+                multiline 
+                rows={3}
+                size="small"
+              />
             </Stack>
           </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} disabled={saving}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" disabled={saving}>
-            {saving ? 'Saving...' : 'Save'}
+        <DialogActions sx={{ 
+          borderTop: 1, 
+          borderColor: 'divider',
+          px: 3,
+          py: 2
+        }}>
+          <Button 
+            onClick={handleClose} 
+            disabled={saving}
+            variant="outlined"
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSubmit} 
+            variant="contained" 
+            disabled={saving}
+          >
+            {saving ? 'Saving...' : 'Save Lead'}
           </Button>
         </DialogActions>
       </Dialog>
 
       {error && (
-        <Typography color="error" mt={1}>
+        <Typography color="error" mt={2}>
           {error}
         </Typography>
       )}
