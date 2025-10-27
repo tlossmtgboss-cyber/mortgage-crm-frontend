@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// Use environment variable for API URL
+const API_URL = process.env.REACT_APP_API_URL || '/api';
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,7 +21,7 @@ const Login = () => {
     setMessage('');
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/login`, {
+      const response = await axios.post(`${API_URL}/users/login`, {
         identifier: email,
         password
       });
@@ -52,7 +55,7 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/update-password`, {
+      const response = await axios.post(`${API_URL}/users/update-password`, {
         email,
         currentPassword: password,
         newPassword
@@ -104,7 +107,7 @@ const Login = () => {
               />
             </div>
             
-            <button type="submit" style={styles.button}>
+            <button style={styles.button} type="submit">
               Update Password
             </button>
           </form>
@@ -146,7 +149,7 @@ const Login = () => {
             />
           </div>
           
-          <button type="submit" style={styles.button}>
+          <button style={styles.button} type="submit">
             Login
           </button>
         </form>
