@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
+// Use environment variable for API URL
+const API_URL = process.env.REACT_APP_API_URL || '/api';
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({
@@ -20,7 +23,7 @@ const Dashboard = () => {
   const fetchDashboardStats = async () => {
     try {
       // Replace with actual backend endpoint
-      const response = await fetch('/api/dashboard/stats');
+      const response = await fetch(`${API_URL}/dashboard/stats`);
       if (response.ok) {
         const data = await response.json();
         setStats(data);
