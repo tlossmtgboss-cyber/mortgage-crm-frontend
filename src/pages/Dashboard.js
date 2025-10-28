@@ -1,4 +1,5 @@
 import React from 'react';
+import './Dashboard.css';
 
 const Dashboard = ({ leads = [], loading = false }) => {
   return (
@@ -12,28 +13,43 @@ const Dashboard = ({ leads = [], loading = false }) => {
       </header>
       
       <div className="dashboard-content">
-        <div className="stats-section">
-          <div className="stat-card">
-            <h3>Total Leads</h3>
-            <p className="stat-number">{leads.length}</p>
+        {/* Metrics Table */}
+        <section className="metrics-section">
+          <h2>Metrics Overview</h2>
+          <div className="table-container">
+            <table className="metrics-table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Total Leads</td>
+                  <td>{leads.length}</td>
+                </tr>
+                <tr>
+                  <td>Active Loans</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td>Closed Deals</td>
+                  <td>0</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <div className="stat-card">
-            <h3>Active Loans</h3>
-            <p className="stat-number">0</p>
-          </div>
-          <div className="stat-card">
-            <h3>Closed Deals</h3>
-            <p className="stat-number">0</p>
-          </div>
-        </div>
-
-        <div className="leads-section">
+        </section>
+        
+        {/* Recent Leads Table */}
+        <section className="leads-section">
           <h2>Recent Leads</h2>
           {loading ? (
             <p>Loading leads...</p>
           ) : leads.length > 0 ? (
-            <div className="leads-table">
-              <table>
+            <div className="table-container">
+              <table className="leads-table">
                 <thead>
                   <tr>
                     <th>Name</th>
@@ -57,7 +73,7 @@ const Dashboard = ({ leads = [], loading = false }) => {
           ) : (
             <p>No leads available.</p>
           )}
-        </div>
+        </section>
       </div>
     </div>
   );
