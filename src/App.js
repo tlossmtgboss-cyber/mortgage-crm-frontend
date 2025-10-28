@@ -62,6 +62,9 @@ function AppContent() {
       case 'scorecard':
         navigate('/scorecard');
         break;
+      case 'portfolio':
+        navigate('/portfolio');
+        break;
       default:
         navigate('/');
     }
