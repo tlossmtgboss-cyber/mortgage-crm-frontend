@@ -39,7 +39,7 @@ const Dashboard = () => {
       icon: '🎯',
       value: stats.leads,
       description: 'New leads and contact attempts',
-      color: '#3b82f6',
+      color: 'var(--primary-blue)',
       path: '/leads'
     },
     {
@@ -47,75 +47,64 @@ const Dashboard = () => {
       icon: '💼',
       value: stats.activeLoans,
       description: 'Loans in process from application to approval',
-      color: '#8b5cf6',
+      color: 'var(--accent-purple)',
       path: '/active-loans'
     },
     {
       title: 'Portfolio',
       icon: '📁',
       value: stats.closedLoans,
-      description: 'Closed borrowers and client relationships',
-      color: '#10b981',
+      description: 'All closed loans and your full client portfolio',
+      color: 'var(--accent-green)',
       path: '/portfolio'
     },
     {
       title: 'Tasks',
       icon: '✓',
       value: stats.pendingTasks,
-      description: 'AI-powered task completion and management',
-      color: '#f59e0b',
+      description: 'Follow-up tasks, calls, emails, documents due',
+      color: 'var(--accent-orange)',
       path: '/tasks'
     },
     {
       title: 'Calendar',
       icon: '📅',
       value: stats.upcomingAppointments,
-      description: 'Scheduling and appointment management',
-      color: '#ef4444',
+      description: 'Upcoming appointments, closings, and reminders',
+      color: 'var(--accent-red)',
       path: '/calendar'
     },
     {
       title: 'Scorecard',
-      icon: '📈',
-      value: '—',
-      description: 'Business metrics and performance analytics',
-      color: '#06b6d4',
+      icon: '📊',
+      value: null,
+      description: 'Performance metrics, conversion rates, and goals',
+      color: 'var(--accent-cyan)',
       path: '/scorecard'
     }
   ];
 
-  const handleCardClick = (path) => {
-    navigate(path);
-  };
-
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
-        <h1>Dashboard</h1>
-        <p className="dashboard-subtitle">Welcome back! Here's an overview of your mortgage CRM.</p>
-      </div>
-      
-      <div className="module-cards-grid">
+    <div className="dashboard">
+      <h1>Dashboard</h1>
+      <div className="modules-container">
         {moduleCards.map((card, index) => (
           <div
             key={index}
             className="module-card"
-            onClick={() => handleCardClick(card.path)}
-            style={{ borderTopColor: card.color }}
+            style={{ borderLeft: `4px solid ${card.color}` }}
+            onClick={() => navigate(card.path)}
           >
-            <div className="module-card-header">
+            <div className="module-header">
               <span className="module-icon">{card.icon}</span>
               <h3>{card.title}</h3>
             </div>
-            <div className="module-card-content">
+            {card.value !== null && (
               <div className="module-value" style={{ color: card.color }}>
                 {card.value}
               </div>
-              <p className="module-description">{card.description}</p>
-            </div>
-            <div className="module-card-footer">
-              <span className="view-details">View Details →</span>
-            </div>
+            )}
+            <p className="module-description">{card.description}</p>
           </div>
         ))}
       </div>
