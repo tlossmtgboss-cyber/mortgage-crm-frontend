@@ -81,7 +81,7 @@
 }
 
 .module-description {
-  color: #6b7280;
+  color: var(--text-gray);
   font-size: 0.9rem;
   margin: 0;
 }
