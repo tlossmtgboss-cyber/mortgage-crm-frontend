@@ -1,40 +1,62 @@
-import React, { useState } from 'react';
-import Sidebar from '../components/Sidebar';
-import PipelineStats from '../components/PipelineStats';
-import LeadsTable from '../components/LeadsTable';
-import LeadDetailPanel from '../components/LeadDetailPanel';
+import React from 'react';
 import './Dashboard.css';
 
-const Dashboard = () => {
-  const [selectedLead, setSelectedLead] = useState(null);
-
-  const handleLeadSelect = (lead) => {
-    setSelectedLead(lead);
-  };
-
-  const handleClosePanel = () => {
-    setSelectedLead(null);
-  };
-
+const Dashboard = ({ leads = [], loading = false }) => {
   return (
-    <div className="dashboard-layout">
-      <Sidebar />
-      <div className="main-content">
-        <header className="dashboard-header">
-          <h1>Dashboard</h1>
-          <div className="header-actions">
-            <button className="btn-primary">Add New Lead</button>
-            <button className="btn-secondary">Export</button>
+    <div className="dashboard-container">
+      <header className="dashboard-header">
+        <h1>Dashboard</h1>
+        <div className="header-actions">
+          <button className="btn-primary">Add New Lead</button>
+          <button className="btn-secondary">Export</button>
+        </div>
+      </header>
+      
+      <div className="dashboard-content">
+        <div className="stats-section">
+          <div className="stat-card">
+            <h3>Total Leads</h3>
+            <p className="stat-number">{leads.length}</p>
           </div>
-        </header>
-        <PipelineStats />
-        <div className="dashboard-content">
-          <div className="leads-section">
-            <h2>Recent Leads</h2>
-            <LeadsTable onLeadSelect={handleLeadSelect} />
+          <div className="stat-card">
+            <h3>Active Loans</h3>
+            <p className="stat-number">0</p>
           </div>
-          {selectedLead && (
-            <LeadDetailPanel lead={selectedLead} onClose={handleClosePanel} />
+          <div className="stat-card">
+            <h3>Closed Deals</h3>
+            <p className="stat-number">0</p>
+          </div>
+        </div>
+
+        <div className="leads-section">
+          <h2>Recent Leads</h2>
+          {loading ? (
+            <p>Loading leads...</p>
+          ) : leads.length > 0 ? (
+            <div className="leads-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leads.slice(0, 10).map((lead, index) => (
+                    <tr key={index}>
+                      <td>{lead.name || 'N/A'}</td>
+                      <td>{lead.email || 'N/A'}</td>
+                      <td>{lead.phone || 'N/A'}</td>
+                      <td>{lead.status || 'New'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p>No leads available.</p>
           )}
         </div>
       </div>
