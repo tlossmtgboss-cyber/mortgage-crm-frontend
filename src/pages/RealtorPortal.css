@@ -1,0 +1,48 @@
+.realtor-portal {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.portal-header {
+  background-color: #2c3e50;
+  color: white;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.portal-header h1 {
+  margin: 0 0 20px 0;
+  font-size: 28px;
+}
+
+.portal-nav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.portal-nav button {
+  padding: 10px 20px;
+  background-color: #34495e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.portal-nav button:hover {
+  background-color: #4a6278;
+}
+
+.portal-nav button.active {
+  background-color: #3498db;
+  font-weight: bold;
+}
+
+.portal-content {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
