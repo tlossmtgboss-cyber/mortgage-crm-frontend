@@ -9,7 +9,8 @@ function TopNav({ currentView, onViewChange }) {
     { id: 'tasks', label: 'Tasks' },
     { id: 'calendar', label: 'Calendar' },
     { id: 'scorecard', label: 'Scorecard' },
-    { id: 'portfolio', label: 'Portfolio' }
+    { id: 'portfolio', label: 'Portfolio' },
+    { id: 'realtor-portal', label: 'Realtor Portal' }
   ];
 
   return (
