@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
 // Use environment variable for API URL
 const API_URL = process.env.REACT_APP_API_URL || '/api';
-
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,18 +12,15 @@ const Login = () => {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
-
     try {
-      const response = await axios.post(`${API_URL}/users/login`, {
+      const response = await axios.post(`${API_URL}/login`, {
         identifier: email,
         password
       });
-
       if (response.data.requirePasswordUpdate) {
         setRequirePasswordUpdate(true);
         setMessage('Please update your password for security.');
@@ -38,29 +33,24 @@ const Login = () => {
       setError(err.response?.data?.message || 'Login failed');
     }
   };
-
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
-
     if (newPassword !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-
     if (newPassword.length < 6) {
       setError('Password must be at least 6 characters');
       return;
     }
-
     try {
-      const response = await axios.post(`${API_URL}/users/update-password`, {
+      const response = await axios.post(`${API_URL}/update-password`, {
         email,
         currentPassword: password,
         newPassword
       });
-
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       setMessage('Password updated successfully!');
@@ -71,7 +61,6 @@ const Login = () => {
       setError(err.response?.data?.message || 'Password update failed');
     }
   };
-
   if (requirePasswordUpdate) {
     return (
       <div style={styles.container}>
@@ -115,7 +104,6 @@ const Login = () => {
       </div>
     );
   }
-
   return (
     <div style={styles.container}>
       <div style={styles.card}>
@@ -161,7 +149,6 @@ const Login = () => {
     </div>
   );
 };
-
 const styles = {
   container: {
     display: 'flex',
@@ -253,5 +240,4 @@ const styles = {
     fontWeight: '500'
   }
 };
-
 export default Login;
