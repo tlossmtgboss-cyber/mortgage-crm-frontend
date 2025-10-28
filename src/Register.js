@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
 // Use environment variable for API URL
 const API_URL = process.env.REACT_APP_API_URL || '/api';
-
 const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -13,42 +11,35 @@ const Register = () => {
     confirmPassword: '',
     role: 'user'
   });
-
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
-
     // Validation
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters');
       return;
     }
-
     try {
-      const response = await axios.post(`${API_URL}/users/register`, {
+      const response = await axios.post(`${API_URL}/register`, {
         username: formData.email,
         email: formData.email,
         password: formData.password,
         role: formData.role
       });
-
       setMessage('Registration successful! Redirecting to login...');
       setTimeout(() => {
         navigate('/login');
@@ -57,7 +48,6 @@ const Register = () => {
       setError(err.response?.data?.message || 'Registration failed');
     }
   };
-
   return (
     <div style={styles.container}>
       <div style={styles.card}>
@@ -79,7 +69,6 @@ const Register = () => {
               placeholder="Enter your full name"
             />
           </div>
-
           <div style={styles.inputGroup}>
             <label style={styles.label}>Email</label>
             <input
@@ -92,7 +81,6 @@ const Register = () => {
               placeholder="Enter your email"
             />
           </div>
-
           <div style={styles.inputGroup}>
             <label style={styles.label}>Password</label>
             <input
@@ -105,7 +93,6 @@ const Register = () => {
               placeholder="Enter your password"
             />
           </div>
-
           <div style={styles.inputGroup}>
             <label style={styles.label}>Confirm Password</label>
             <input
@@ -118,7 +105,6 @@ const Register = () => {
               placeholder="Confirm your password"
             />
           </div>
-
           <div style={styles.inputGroup}>
             <label style={styles.label}>Role</label>
             <select
@@ -131,7 +117,6 @@ const Register = () => {
               <option value="admin">Admin</option>
             </select>
           </div>
-
           <button style={styles.button} type="submit">
             Register
           </button>
@@ -144,7 +129,6 @@ const Register = () => {
     </div>
   );
 };
-
 const styles = {
   container: {
     display: 'flex',
@@ -230,5 +214,4 @@ const styles = {
     fontWeight: '500'
   }
 };
-
 export default Register;
