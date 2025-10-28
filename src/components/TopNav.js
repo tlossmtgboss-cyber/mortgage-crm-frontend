@@ -8,7 +8,8 @@ function TopNav({ currentView, onViewChange }) {
     { id: 'active-loans', label: 'Active Loans' },
     { id: 'tasks', label: 'Tasks' },
     { id: 'calendar', label: 'Calendar' },
-    { id: 'scorecard', label: 'Scorecard' }
+    { id: 'scorecard', label: 'Scorecard' },
+    { id: 'portfolio', label: 'Portfolio' }
   ];
 
   return (
