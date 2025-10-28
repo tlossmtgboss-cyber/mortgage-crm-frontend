@@ -1,372 +1,423 @@
-import React, { useState } from 'react';
-import './LeadList.css';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  Box,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close';
+import leadService from '../services/leadService';
 
-const LeadList = ({ leads, onLeadAdded }) => {
-  const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    borrowerName: '',
-    email: '',
-    phone: '',
-    propertyAddress: '',
-    loanPurpose: '',
-    requestedLoanAmount: '',
-    propertyType: '',
-    estimatedCreditScore: '',
-    estimatedClosingDate: '',
-    preferredContactMethod: '',
-    referralSource: '',
-    coBorrowerInfo: '',
-    notes: '',
-    status: 'NEW'
-  });
+const defaultForm = {
+  borrowerName: '',
+  email: '',
+  phone: '',
+  propertyAddress: '',
+  loanPurpose: '',
+  requestedLoanAmount: '',
+  propertyType: '',
+  estimatedCreditScore: '',
+  estimatedClosingDate: '',
+  preferredContactMethod: '',
+  referralSource: '',
+  coBorrowerInfo: '',
+  notes: '',
+  status: 'NEW',
+};
+
+export default function LeadList() {
+  const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(null); // row or null
+  const [form, setForm] = useState(defaultForm);
+  const [saving, setSaving] = useState(false);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const loadLeads = async () => {
     setLoading(true);
     setError('');
-
     try {
-      const response = await fetch(process.env.REACT_APP_API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to add lead');
-      }
-
-      const newLead = await response.json();
-      
-      // Reset form and close modal
-      setFormData({
-        borrowerName: '',
-        email: '',
-        phone: '',
-        propertyAddress: '',
-        loanPurpose: '',
-        requestedLoanAmount: '',
-        propertyType: '',
-        estimatedCreditScore: '',
-        estimatedClosingDate: '',
-        preferredContactMethod: '',
-        referralSource: '',
-        coBorrowerInfo: '',
-        notes: '',
-        status: 'NEW'
-      });
-      setShowModal(false);
-      
-      // Notify parent component to refresh leads
-      if (onLeadAdded) {
-        onLeadAdded(newLead);
-      }
+      const data = await leadService.getLeads();
+      setRows(data);
     } catch (err) {
-      setError(err.message || 'Failed to add lead. Please try again.');
+      setError(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setError('');
-    setFormData({
-      borrowerName: '',
-      email: '',
-      phone: '',
-      propertyAddress: '',
-      loanPurpose: '',
-      requestedLoanAmount: '',
-      propertyType: '',
-      estimatedCreditScore: '',
-      estimatedClosingDate: '',
-      preferredContactMethod: '',
-      referralSource: '',
-      coBorrowerInfo: '',
-      notes: '',
-      status: 'NEW'
-    });
+  useEffect(() => {
+    loadLeads();
+  }, []);
+
+  const handleOpenNew = () => {
+    setForm(defaultForm);
+    setEditing(null);
+    setOpen(true);
   };
 
-  if (!leads || leads.length === 0) {
-    return (
-      <div className="lead-list-empty">
-        No leads found
-        Start by adding your first mortgage lead to the system.
-        <button className="btn-add-lead" onClick={() => setShowModal(true)}>
-          Add New Lead
-        </button>
-      </div>
+  const handleOpenEdit = (row) => {
+    setForm(row);
+    setEditing(row);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setForm(defaultForm);
+    setEditing(null);
+  };
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async () => {
+    setSaving(true);
+    setError('');
+    try {
+      if (editing) {
+        await leadService.updateLead(editing._id, form);
+      } else {
+        await leadService.createLead(form);
+      }
+      handleClose();
+      loadLeads();
+    } catch (err) {
+      setError(err.response?.data?.error || err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this lead?')) return;
+    try {
+      await leadService.deleteLead(id);
+      loadLeads();
+    } catch (err) {
+      setError(err.response?.data?.error || err.message);
+    }
+  };
+
+  const columns = [
+    { field: 'borrowerName', headerName: 'Borrower Name', width: 180 },
+    { field: 'email', headerName: 'Email', width: 200 },
+    { field: 'phone', headerName: 'Phone', width: 140 },
+    { field: 'loanPurpose', headerName: 'Loan Purpose', width: 150 },
+    { field: 'requestedLoanAmount', headerName: 'Loan Amount', width: 150 },
+    {
+      field: 'status',
+      headerName: 'Status',
+      width: 120,
+      renderCell: (params) => (
+        <Chip
+          label={params.value}
+          color={
+            params.value === 'NEW'
+              ? 'default'
+              : params.value === 'CONTACTED'
+              ? 'primary'
+              : params.value === 'QUALIFIED'
+              ? 'info'
+              : params.value === 'APPLICATION_SUBMITTED'
+              ? 'warning'
+              : 'success'
+          }
+          size="small"
+        />
+      ),
+    },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 120,
+      sortable: false,
+      renderCell: (params) => (
+        <Box>
+          <Tooltip title="Edit">
+            <IconButton size="small" onClick={() => handleOpenEdit(params.row)}>
+              <EditIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Delete">
+            <IconButton
+              size="small"
+              color="error"
+              onClick={() => handleDelete(params.row._id)}
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      ),
+    },
+  ];
+
+  const filteredRows = useMemo(() => {
+    if (!search) return rows;
+    return rows.filter(
+      (r) =>
+        r.borrowerName?.toLowerCase().includes(search.toLowerCase()) ||
+        r.email?.toLowerCase().includes(search.toLowerCase()) ||
+        r.phone?.toLowerCase().includes(search.toLowerCase()) ||
+        r.loanPurpose?.toLowerCase().includes(search.toLowerCase())
     );
-  }
+  }, [rows, search]);
 
   return (
-    <div className="lead-list">
-      <div className="lead-list-header">
-        Lead List
-        <button className="btn-add-lead" onClick={() => setShowModal(true)}>
-          + Add New Lead
-        </button>
-      </div>
-      
-      <div className="lead-cards">
-        {leads.map((lead) => (
-          <div key={lead.id} className="lead-card">
-            <div className="lead-header">
-              {lead.borrowerName}
-              <span className={`status status-${lead.status?.toLowerCase() || 'new'}`}>
-                {lead.status || 'NEW'}
-              </span>
-            </div>
-            <div className="lead-details">
-              Email: {lead.email}
-              Phone: {lead.phone || 'N/A'}
-              Property Address: {lead.propertyAddress || 'N/A'}
-              Loan Purpose: {lead.loanPurpose || 'N/A'}
-              Requested Amount: ${lead.requestedLoanAmount?.toLocaleString() || '0'}
-              Property Type: {lead.propertyType || 'N/A'}
-              Credit Score: {lead.estimatedCreditScore || 'N/A'}
-              Closing Date: {lead.estimatedClosingDate || 'N/A'}
-              Contact Method: {lead.preferredContactMethod || 'N/A'}
-              Referral Source: {lead.referralSource || 'N/A'}
-              {lead.coBorrowerInfo && (
-                Co-Borrower: {lead.coBorrowerInfo}
-              )}
-              {lead.notes && (
-                Notes: {lead.notes}
-              )}
-            </div>
-            <div className="lead-meta">
-              Created: {new Date(lead.createdAt).toLocaleDateString()}
-            </div>
-          </div>
-        ))}
-      </div>
+    <Box p={3} sx={{ maxWidth: '100%' }}>
+      <Typography variant="h4" mb={3}>
+        Leads
+      </Typography>
 
-      {/* Add Lead Modal */}
-      {showModal && (
-        <div className="modal-overlay" onClick={handleCloseModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              Add New Lead
-              <button className="btn-close" onClick={handleCloseModal}>×</button>
-            </div>
-            
-            {error && <div className="error-message">{error}</div>}
-            
-            <form className="lead-form" onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="borrowerName">Borrower Name *</label>
-                <input
-                  type="text"
-                  id="borrowerName"
-                  name="borrowerName"
-                  value={formData.borrowerName}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
+      <Stack direction="row" spacing={2} mb={3}>
+        <TextField
+          placeholder="Search leads..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          size="small"
+          InputProps={{
+            startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
+          }}
+          sx={{ width: 300 }}
+        />
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleOpenNew}
+        >
+          Add Lead
+        </Button>
+      </Stack>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="email">Email *</label>
-                  <input
-                    type="email"
-                    id="email"
+      <DataGrid
+        rows={filteredRows}
+        columns={columns}
+        loading={loading}
+        getRowId={(row) => row._id}
+        disableRowSelectionOnClick
+        autoHeight
+        initialState={{
+          pagination: { paginationModel: { pageSize: 25 } },
+        }}
+        pageSizeOptions={[10, 25, 50]}
+      />
+
+      <Dialog fullWidth maxWidth="sm" open={open} onClose={handleClose}>
+        <DialogTitle>
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Typography variant="h6">
+              {editing ? 'Edit Lead' : 'Add New Lead'}
+            </Typography>
+            <IconButton size="small" onClick={handleClose}>
+              <CloseIcon />
+            </IconButton>
+          </Stack>
+        </DialogTitle>
+        <DialogContent sx={{ pt: 2 }}>
+          <Box sx={{ mt: 1 }}>
+            <Stack spacing={1.5}>
+              <Grid container spacing={1.5}>
+                <Grid item xs={6}>
+                  <TextField
+                    name="borrowerName"
+                    label="Borrower Name"
+                    value={form.borrowerName}
+                    onChange={handleChange}
+                    fullWidth
+                    required
+                    size="small"
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
                     name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
+                    label="Email"
+                    type="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    fullWidth
                     required
+                    size="small"
                   />
-                </div>
+                </Grid>
+              </Grid>
 
-                <div className="form-group">
-                  <label htmlFor="phone">Phone Number *</label>
-                  <input
-                    type="tel"
-                    id="phone"
+              <Grid container spacing={1.5}>
+                <Grid item xs={6}>
+                  <TextField
                     name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
+                    label="Phone"
+                    value={form.phone}
+                    onChange={handleChange}
+                    fullWidth
                     required
+                    size="small"
                   />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="propertyAddress">Property Address *</label>
-                <input
-                  type="text"
-                  id="propertyAddress"
-                  name="propertyAddress"
-                  value={formData.propertyAddress}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="loanPurpose">Loan Purpose *</label>
-                  <select
-                    id="loanPurpose"
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
                     name="loanPurpose"
-                    value={formData.loanPurpose}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="">Select purpose...</option>
-                    <option value="Purchase">Purchase</option>
-                    <option value="Refinance">Refinance</option>
-                    <option value="Cash-out">Cash-out</option>
-                    <option value="Home Equity">Home Equity</option>
-                  </select>
-                </div>
+                    label="Loan Purpose"
+                    value={form.loanPurpose}
+                    onChange={handleChange}
+                    fullWidth
+                    size="small"
+                  />
+                </Grid>
+              </Grid>
 
-                <div className="form-group">
-                  <label htmlFor="requestedLoanAmount">Requested Loan Amount *</label>
-                  <input
-                    type="number"
-                    id="requestedLoanAmount"
+              <Grid container spacing={1.5}>
+                <Grid item xs={6}>
+                  <TextField
                     name="requestedLoanAmount"
-                    value={formData.requestedLoanAmount}
-                    onChange={handleInputChange}
-                    placeholder="0"
-                    required
+                    label="Requested Loan Amount"
+                    value={form.requestedLoanAmount}
+                    onChange={handleChange}
+                    fullWidth
+                    size="small"
                   />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="propertyType">Property Type *</label>
-                  <select
-                    id="propertyType"
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
                     name="propertyType"
-                    value={formData.propertyType}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="">Select type...</option>
-                    <option value="Single-family">Single-family</option>
-                    <option value="Condo">Condo</option>
-                    <option value="Townhouse">Townhouse</option>
-                    <option value="Multi-family">Multi-family</option>
-                  </select>
-                </div>
+                    label="Property Type"
+                    value={form.propertyType}
+                    onChange={handleChange}
+                    fullWidth
+                    size="small"
+                  />
+                </Grid>
+              </Grid>
 
-                <div className="form-group">
-                  <label htmlFor="estimatedCreditScore">Estimated Credit Score</label>
-                  <input
-                    type="number"
-                    id="estimatedCreditScore"
+              <Grid container spacing={1.5}>
+                <Grid item xs={6}>
+                  <TextField
                     name="estimatedCreditScore"
-                    value={formData.estimatedCreditScore}
-                    onChange={handleInputChange}
-                    placeholder="300-850"
-                    min="300"
-                    max="850"
+                    label="Estimated Credit Score"
+                    value={form.estimatedCreditScore}
+                    onChange={handleChange}
+                    fullWidth
+                    size="small"
                   />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="estimatedClosingDate">Estimated Closing Date</label>
-                  <input
-                    type="date"
-                    id="estimatedClosingDate"
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
                     name="estimatedClosingDate"
-                    value={formData.estimatedClosingDate}
-                    onChange={handleInputChange}
+                    label="Estimated Closing Date"
+                    type="date"
+                    value={form.estimatedClosingDate}
+                    onChange={handleChange}
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth
+                    size="small"
                   />
-                </div>
+                </Grid>
+              </Grid>
 
-                <div className="form-group">
-                  <label htmlFor="preferredContactMethod">Preferred Contact Method *</label>
-                  <select
-                    id="preferredContactMethod"
+              <TextField
+                name="propertyAddress"
+                label="Property Address"
+                value={form.propertyAddress}
+                onChange={handleChange}
+                fullWidth
+                size="small"
+              />
+
+              <Grid container spacing={1.5}>
+                <Grid item xs={6}>
+                  <TextField
                     name="preferredContactMethod"
-                    value={formData.preferredContactMethod}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="">Select method...</option>
-                    <option value="Phone">Phone</option>
-                    <option value="Email">Email</option>
-                    <option value="SMS">SMS</option>
-                  </select>
-                </div>
-              </div>
+                    label="Preferred Contact Method"
+                    value={form.preferredContactMethod}
+                    onChange={handleChange}
+                    fullWidth
+                    size="small"
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    name="referralSource"
+                    label="Referral Source"
+                    value={form.referralSource}
+                    onChange={handleChange}
+                    fullWidth
+                    size="small"
+                  />
+                </Grid>
+              </Grid>
 
-              <div className="form-group">
-                <label htmlFor="referralSource">Referral Source</label>
-                <select
-                  id="referralSource"
-                  name="referralSource"
-                  value={formData.referralSource}
-                  onChange={handleInputChange}
-                >
-                  <option value="">Select source...</option>
-                  <option value="Agent">Agent</option>
-                  <option value="Website">Website</option>
-                  <option value="Past Client">Past Client</option>
-                  <option value="Social Media">Social Media</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
+              <TextField
+                name="coBorrowerInfo"
+                label="Co-borrower Info"
+                value={form.coBorrowerInfo}
+                onChange={handleChange}
+                fullWidth
+                size="small"
+              />
 
-              <div className="form-group">
-                <label htmlFor="coBorrowerInfo">Co-Borrower Information</label>
-                <input
-                  type="text"
-                  id="coBorrowerInfo"
-                  name="coBorrowerInfo"
-                  value={formData.coBorrowerInfo}
-                  onChange={handleInputChange}
-                  placeholder="Name, contact info, etc."
-                />
-              </div>
+              <TextField
+                name="notes"
+                label="Notes"
+                value={form.notes}
+                onChange={handleChange}
+                fullWidth
+                multiline
+                rows={2}
+                size="small"
+              />
+            </Stack>
+          </Box>
+        </DialogContent>
+        <DialogActions
+          sx={{
+            borderTop: 1,
+            borderColor: 'divider',
+            px: 2,
+            py: 1.5
+          }}
+        >
+          <Button
+            onClick={handleClose}
+            disabled={saving}
+            variant="outlined"
+            size="small"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            variant="contained"
+            disabled={saving}
+            size="small"
+          >
+            {saving ? 'Saving...' : 'Save Lead'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-              <div className="form-group">
-                <label htmlFor="notes">Notes/Comments</label>
-                <textarea
-                  id="notes"
-                  name="notes"
-                  value={formData.notes}
-                  onChange={handleInputChange}
-                  rows="4"
-                  placeholder="Add any special circumstances, priorities, or needs..."
-                ></textarea>
-              </div>
-
-              <div className="form-actions">
-                <button className="btn-cancel" onClick={handleCloseModal} type="button">
-                  Cancel
-                </button>
-                <button className="btn-submit" disabled={loading} type="submit">
-                  {loading ? 'Adding...' : 'Add Lead'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+      {error && (
+        <Typography color="error" mt={2}>
+          {error}
+        </Typography>
       )}
-    </div>
+    </Box>
   );
-};
-
-export default LeadList;
+}

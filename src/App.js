@@ -12,6 +12,10 @@ import Calendar from './components/Calendar';
 import Scorecard from './components/Scorecard';
 import AssistantWidget from './components/AssistantWidget';
 import TopNav from './components/TopNav';
+import SidebarNavigation from './components/SidebarNavigation';
+
+// Use environment variable for API URL
+const API_URL = process.env.REACT_APP_API_URL || '/api';
 
 function AppContent() {
   const [leads, setLeads] = useState([]);
@@ -26,7 +30,7 @@ function AppContent() {
 
   const fetchLeads = async () => {
     try {
-      const response = await fetch(process.env.REACT_APP_API_URL);
+      const response = await fetch(`${API_URL}/leads/`);
       if (response.ok) {
         const data = await response.json();
         setLeads(data);
@@ -76,6 +80,104 @@ function AppContent() {
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/scorecard" element={<Scorecard />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route
+            path="/"
+            element={
+              <>
+                <SidebarNavigation />
+                <div className="main-content">
+                  <Dashboard />
+                </div>
+                <AssistantWidget />
+              </>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <>
+                <SidebarNavigation />
+                <div className="main-content">
+                  <Dashboard />
+                </div>
+                <AssistantWidget />
+              </>
+            }
+          />
+          <Route
+            path="/leads"
+            element={
+              <>
+                <SidebarNavigation />
+                <div className="main-content">
+                  <LeadList />
+                </div>
+                <AssistantWidget />
+              </>
+            }
+          />
+          <Route
+            path="/active-loans"
+            element={
+              <>
+                <SidebarNavigation />
+                <div className="main-content">
+                  <ActiveLoans />
+                </div>
+                <AssistantWidget />
+              </>
+            }
+          />
+          <Route
+            path="/portfolio"
+            element={
+              <>
+                <SidebarNavigation />
+                <div className="main-content">
+                  <Portfolio />
+                </div>
+                <AssistantWidget />
+              </>
+            }
+          />
+          <Route
+            path="/tasks"
+            element={
+              <>
+                <SidebarNavigation />
+                <div className="main-content">
+                  <Tasks />
+                </div>
+                <AssistantWidget />
+              </>
+            }
+          />
+          <Route
+            path="/calendar"
+            element={
+              <>
+                <SidebarNavigation />
+                <div className="main-content">
+                  <Calendar />
+                </div>
+                <AssistantWidget />
+              </>
+            }
+          />
+          <Route
+            path="/scorecard"
+            element={
+              <>
+                <SidebarNavigation />
+                <div className="main-content">
+                  <Scorecard />
+                </div>
+                <AssistantWidget />
+              </>
+            }
+          />
         </Routes>
         <AssistantWidget />
       </div>
@@ -86,11 +188,7 @@ function AppContent() {
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/*" element={<AppContent />} />
-      </Routes>
+      <AppContent />
     </Router>
   );
 }

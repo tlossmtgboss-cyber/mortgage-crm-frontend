@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+// Use environment variable for API URL
+const API_URL = process.env.REACT_APP_API_URL || '/api';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -11,18 +12,15 @@ const Login = () => {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
-
     try {
-      const response = await axios.post('https://mortgage-crm-backend-production.up.railway.app/api/users/login', {
-        email,
+      const response = await axios.post(`${API_URL}/login`, {
+        identifier: email,
         password
       });
-
       if (response.data.requirePasswordUpdate) {
         setRequirePasswordUpdate(true);
         setMessage('Please update your password for security.');
@@ -35,29 +33,24 @@ const Login = () => {
       setError(err.response?.data?.message || 'Login failed');
     }
   };
-
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
-
     if (newPassword !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-
     if (newPassword.length < 6) {
       setError('Password must be at least 6 characters');
       return;
     }
-
     try {
-      const response = await axios.post('https://mortgage-crm-backend-production.up.railway.app/api/users/update-password', {
+      const response = await axios.post(`${API_URL}/update-password`, {
         email,
         currentPassword: password,
         newPassword
       });
-
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       setMessage('Password updated successfully!');
@@ -68,15 +61,16 @@ const Login = () => {
       setError(err.response?.data?.message || 'Password update failed');
     }
   };
-
   if (requirePasswordUpdate) {
     return (
       <div style={styles.container}>
         <div style={styles.card}>
           <h2 style={styles.title}>Update Password</h2>
           <p style={styles.subtitle}>Please set a new password for your account</p>
+          
           {error && <div style={styles.error}>{error}</div>}
           {message && <div style={styles.success}>{message}</div>}
+          
           <form onSubmit={handlePasswordUpdate} style={styles.form}>
             <div style={styles.inputGroup}>
               <label style={styles.label}>New Password</label>
@@ -89,6 +83,7 @@ const Login = () => {
                 placeholder="Enter new password"
               />
             </div>
+            
             <div style={styles.inputGroup}>
               <label style={styles.label}>Confirm Password</label>
               <input
@@ -100,7 +95,8 @@ const Login = () => {
                 placeholder="Confirm new password"
               />
             </div>
-            <button type="submit" style={styles.button}>
+            
+            <button style={styles.button} type="submit">
               Update Password
             </button>
           </form>
@@ -108,13 +104,14 @@ const Login = () => {
       </div>
     );
   }
-
   return (
     <div style={styles.container}>
       <div style={styles.card}>
         <h2 style={styles.title}>Login to Mortgage CRM</h2>
+        
         {error && <div style={styles.error}>{error}</div>}
         {message && <div style={styles.success}>{message}</div>}
+        
         <form onSubmit={handleLogin} style={styles.form}>
           <div style={styles.inputGroup}>
             <label style={styles.label}>Email</label>
@@ -127,6 +124,7 @@ const Login = () => {
               placeholder="Enter your email"
             />
           </div>
+          
           <div style={styles.inputGroup}>
             <label style={styles.label}>Password</label>
             <input
@@ -138,10 +136,12 @@ const Login = () => {
               placeholder="Enter your password"
             />
           </div>
-          <button type="submit" style={styles.button}>
+          
+          <button style={styles.button} type="submit">
             Login
           </button>
         </form>
+        
         <p style={styles.registerLink}>
           Don't have an account? <a href="/register" style={styles.link}>Register here</a>
         </p>
@@ -149,7 +149,6 @@ const Login = () => {
     </div>
   );
 };
-
 const styles = {
   container: {
     display: 'flex',
@@ -241,5 +240,4 @@ const styles = {
     fontWeight: '500'
   }
 };
-
 export default Login;

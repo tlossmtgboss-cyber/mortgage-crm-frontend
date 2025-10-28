@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+// Use environment variable for API URL
+const API_URL = process.env.REACT_APP_API_URL || '/api';
 const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -13,38 +14,32 @@ const Register = () => {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
-
     // Validation
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters');
       return;
     }
-
     try {
-      const response = await axios.post('https://mortgage-crm-backend-production.up.railway.app/api/users/register', {
-        name: formData.name,
+      const response = await axios.post(`${API_URL}/register`, {
+        username: formData.email,
         email: formData.email,
         password: formData.password,
         role: formData.role
       });
-
       setMessage('Registration successful! Redirecting to login...');
       setTimeout(() => {
         navigate('/login');
@@ -53,13 +48,14 @@ const Register = () => {
       setError(err.response?.data?.message || 'Registration failed');
     }
   };
-
   return (
     <div style={styles.container}>
       <div style={styles.card}>
         <h2 style={styles.title}>Register for Mortgage CRM</h2>
+        
         {error && <div style={styles.error}>{error}</div>}
         {message && <div style={styles.success}>{message}</div>}
+        
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.inputGroup}>
             <label style={styles.label}>Full Name</label>
@@ -121,10 +117,11 @@ const Register = () => {
               <option value="admin">Admin</option>
             </select>
           </div>
-          <button type="submit" style={styles.button}>
+          <button style={styles.button} type="submit">
             Register
           </button>
         </form>
+        
         <p style={styles.loginLink}>
           Already have an account? <a href="/login" style={styles.link}>Login here</a>
         </p>
@@ -132,7 +129,6 @@ const Register = () => {
     </div>
   );
 };
-
 const styles = {
   container: {
     display: 'flex',
@@ -218,5 +214,4 @@ const styles = {
     fontWeight: '500'
   }
 };
-
 export default Register;
