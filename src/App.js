@@ -16,6 +16,14 @@ import TopNav from './components/TopNav';
 // Use environment variable for API URL
 const API_URL = process.env.REACT_APP_API_URL || '/api';
 
+// Placeholder Realtor Portal Component
+const RealtorPortal = () => (
+  <div className="realtor-portal">
+    <h1>Realtor Portal</h1>
+    <p>Welcome to the Realtor Portal. This page is under construction.</p>
+  </div>
+);
+
 function AppContent() {
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,6 +73,9 @@ function AppContent() {
       case 'portfolio':
         navigate('/portfolio');
         break;
+      case 'realtor-portal':
+        navigate('/realtor-portal');
+        break;
       default:
         navigate('/');
     }
@@ -82,6 +93,7 @@ function AppContent() {
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/scorecard" element={<Scorecard />} />
+          <Route path="/realtor-portal" element={<RealtorPortal />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>
