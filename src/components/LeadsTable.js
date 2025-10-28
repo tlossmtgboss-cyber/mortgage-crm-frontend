@@ -1,5 +1,4 @@
 import React from 'react';
-import './LeadsTable.css';
 
 const LeadsTable = ({ leads, onLeadSelect }) => {
   const defaultLeads = [
