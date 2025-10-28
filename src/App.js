@@ -12,7 +12,6 @@ import Calendar from './components/Calendar';
 import Scorecard from './components/Scorecard';
 import AssistantWidget from './components/AssistantWidget';
 import TopNav from './components/TopNav';
-import SidebarNavigation from './components/SidebarNavigation';
 
 // Use environment variable for API URL
 const API_URL = process.env.REACT_APP_API_URL || '/api';
@@ -82,102 +81,6 @@ function AppContent() {
           <Route path="/scorecard" element={<Scorecard />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route
-            path="/"
-            element={
-              <>
-                <SidebarNavigation />
-                <div className="main-content">
-                  <Dashboard />
-                </div>
-                <AssistantWidget />
-              </>
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <>
-                <SidebarNavigation />
-                <div className="main-content">
-                  <Dashboard />
-                </div>
-                <AssistantWidget />
-              </>
-            }
-          />
-          <Route
-            path="/leads"
-            element={
-              <>
-                <SidebarNavigation />
-                <div className="main-content">
-                  <LeadList />
-                </div>
-                <AssistantWidget />
-              </>
-            }
-          />
-          <Route
-            path="/active-loans"
-            element={
-              <>
-                <SidebarNavigation />
-                <div className="main-content">
-                  <ActiveLoans />
-                </div>
-                <AssistantWidget />
-              </>
-            }
-          />
-          <Route
-            path="/portfolio"
-            element={
-              <>
-                <SidebarNavigation />
-                <div className="main-content">
-                  <Portfolio />
-                </div>
-                <AssistantWidget />
-              </>
-            }
-          />
-          <Route
-            path="/tasks"
-            element={
-              <>
-                <SidebarNavigation />
-                <div className="main-content">
-                  <Tasks />
-                </div>
-                <AssistantWidget />
-              </>
-            }
-          />
-          <Route
-            path="/calendar"
-            element={
-              <>
-                <SidebarNavigation />
-                <div className="main-content">
-                  <Calendar />
-                </div>
-                <AssistantWidget />
-              </>
-            }
-          />
-          <Route
-            path="/scorecard"
-            element={
-              <>
-                <SidebarNavigation />
-                <div className="main-content">
-                  <Scorecard />
-                </div>
-                <AssistantWidget />
-              </>
-            }
-          />
         </Routes>
         <AssistantWidget />
       </div>
