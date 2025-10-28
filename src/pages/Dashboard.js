@@ -1,30 +1,70 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 import './Dashboard.css';
+import LeadFormModal from '../components/LeadFormModal';
 
-const Dashboard = ({ leads = [], loading = false }) => {
+function Dashboard() {
   const navigate = useNavigate();
+  const [leads, setLeads] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showLeadForm, setShowLeadForm] = useState(false);
+
+  useEffect(() => {
+    fetchLeads();
+  }, []);
+
+  const fetchLeads = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const response = await api.get('/leads', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setLeads(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching leads:', error);
+      if (error.response?.status === 401) {
+        navigate('/login');
+      }
+      setLoading(false);
+    }
+  };
 
   const handleAddNewLead = () => {
-    navigate('/leads');
+    setShowLeadForm(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowLeadForm(false);
+  };
+
+  const handleLeadCreated = (newLead) => {
+    setLeads([newLead, ...leads]);
+    setShowLeadForm(false);
   };
 
   return (
-    <div className="dashboard-container">
-      <header className="dashboard-header">
-        <h1>Dashboard</h1>
-        <div className="header-actions">
-          <button className="btn-primary" onClick={handleAddNewLead}>Add New Lead</button>
-          <button className="btn-secondary">Export</button>
-        </div>
-      </header>
-      
+    <div className="dashboard">
       <div className="dashboard-content">
-        {/* Metrics Table */}
-        <section className="metrics-section">
-          <h2>Metrics Overview</h2>
-          <div className="table-container">
-            <table className="metrics-table">
+        {/* Header Section */}
+        <section className="dashboard-header">
+          <h1>Dashboard</h1>
+          <button className="btn-primary" onClick={handleAddNewLead}>
+            + Add New Lead
+          </button>
+        </section>
+
+        {/* Stats Section */}
+        <section className="stats-section">
+          <div className="stats-card">
+            <h3>Pipeline Overview</h3>
+            <table className="stats-table">
               <thead>
                 <tr>
                   <th>Metric</th>
@@ -82,6 +122,14 @@ const Dashboard = ({ leads = [], loading = false }) => {
           )}
         </section>
       </div>
+      
+      {/* Lead Form Modal */}
+      {showLeadForm && (
+        <LeadFormModal
+          onClose={handleCloseModal}
+          onLeadCreated={handleLeadCreated}
+        />
+      )}
     </div>
   );
 };
