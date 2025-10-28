@@ -1,13 +1,20 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
 const Dashboard = ({ leads = [], loading = false }) => {
+  const navigate = useNavigate();
+
+  const handleAddNewLead = () => {
+    navigate('/leads');
+  };
+
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
         <h1>Dashboard</h1>
         <div className="header-actions">
-          <button className="btn-primary">Add New Lead</button>
+          <button className="btn-primary" onClick={handleAddNewLead}>Add New Lead</button>
           <button className="btn-secondary">Export</button>
         </div>
       </header>
