@@ -4,7 +4,7 @@ import './App.css';
 import Login from './Login';
 import Register from './Register';
 import Dashboard from './pages/Dashboard';
-import LeadList from './components/LeadList';
+import LeadsTable from './components/LeadsTable';
 import ActiveLoans from './components/ActiveLoans';
 import Portfolio from './components/Portfolio';
 import Tasks from './components/Tasks';
@@ -87,7 +87,7 @@ function AppContent() {
       <div className="main-content">
         <Routes>
           <Route path="/" element={<Dashboard leads={leads} loading={loading} />} />
-          <Route path="/leads" element={<LeadList />} />
+          <Route path="/leads" element={<LeadsTable />} />
           <Route path="/active-loans" element={<ActiveLoans />} />
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/tasks" element={<Tasks />} />
