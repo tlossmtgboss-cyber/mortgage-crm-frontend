@@ -1,5 +1,5 @@
 // src/services/assistant.js
-import { api } from './api';
+import api from './api';
 
 /**
  * Ask the AI assistant a question
@@ -35,13 +35,15 @@ export async function askAssistant(
       throw new Error('Invalid response from assistant');
     }
 
-    return data;
+    return {
+      reply: data.reply,
+      model: data.model || 'unknown',
+      latency_ms: data.latency_ms || 0,
+      usage: data.usage || null
+    };
   } catch (error) {
-    // Enhance error message for better debugging
-    const errorMessage = error.response?.data?.detail 
-      || error.message 
-      || 'Failed to get response from assistant';
-    
-    throw new Error(errorMessage);
+    // Re-throw with more context
+    const message = error.response?.data?.detail || error.message || 'Failed to get response from assistant';
+    throw new Error(message);
   }
 }
