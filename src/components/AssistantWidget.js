@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { askAssistant } from '../services/assistant';
 import './AssistantWidget.css';
 
 const AssistantWidget = () => {
@@ -34,136 +35,113 @@ const AssistantWidget = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!prompt.trim()) {
-      setError('Please enter a prompt');
-      return;
-    }
+    if (!prompt.trim()) return;
 
     setLoading(true);
     setError(null);
     setResponse('');
 
     try {
-      const token = localStorage.getItem('token');
+      // Use the new assistant service with proper contract
+      const result = await askAssistant(
+        prompt,
+        'web-session', // sessionId for tracking
+        { source: 'CRM-Dashboard', userId: 'current-user' } // context
+      );
       
-      if (!token) {
-        setError('You must be logged in to use the assistant');
-        setLoading(false);
-        return;
-      }
-
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://mortgage-crm-production.up.railway.app';
-      
-      const res = await fetch(`${apiUrl}/api/assistant`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ prompt })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to get response from assistant');
-      }
-
-      setResponse(data.response);
-      setPrompt('');
+      // Extract reply from response (following the contract)
+      setResponse(result.reply);
+      setShowTips(false);
     } catch (err) {
-      setError(err.message || 'Something went wrong');
+      setError(err.message || 'Failed to get response from assistant');
+      console.error('Assistant error:', err);
     } finally {
       setLoading(false);
     }
   };
 
+  const toggleWidget = () => {
+    setIsOpen(!isOpen);
+    if (!isOpen) {
+      setShowTips(true);
+      setPrompt('');
+      setResponse('');
+      setError(null);
+    }
+  };
+
+  const handleTipClick = (tipText) => {
+    setPrompt(tipText);
+    setShowTips(false);
+  };
+
   return (
-    <div className={`assistant-widget ${isOpen ? 'open' : ''}`}>
-      <button 
-        className="assistant-toggle"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label="Toggle AI Assistant"
-      >
-        🤖 AI Assistant
-      </button>
+    <>
+      <div className={`assistant-widget ${isOpen ? 'open' : ''}`}>
+        <button className="widget-toggle" onClick={toggleWidget}>
+          {isOpen ? '✕' : '🤖'}
+        </button>
 
-      {isOpen && (
-        <div className="assistant-panel">
-          <div className="assistant-header">
-            <h3>🤖 AI Assistant</h3>
-            <button 
-              className="close-btn"
-              onClick={() => setIsOpen(false)}
-              aria-label="Close"
-            >
-              ×
-            </button>
-          </div>
+        {isOpen && (
+          <div className="widget-content">
+            <div className="widget-header">
+              <h3>🤖 AI Assistant</h3>
+              <p>Your personal mortgage CRM helper</p>
+            </div>
 
-          {showTips && (
-            <div className="assistant-tips">
-              <div className="tips-header">
-                <h4>💡 How I Can Help</h4>
-                <button 
-                  className="tips-toggle"
-                  onClick={() => setShowTips(false)}
-                >
-                  Hide Tips
-                </button>
-              </div>
-              <div className="tips-grid">
-                {aiTips.map((tip, index) => (
-                  <div key={index} className="tip-card">
-                    <span className="tip-icon">{tip.icon}</span>
-                    <div className="tip-content">
-                      <strong>{tip.title}</strong>
+            {showTips && !response && (
+              <div className="ai-tips">
+                <h4>What can I help you with?</h4>
+                <div className="tips-grid">
+                  {aiTips.map((tip, index) => (
+                    <div
+                      key={index}
+                      className="tip-card"
+                      onClick={() => handleTipClick(tip.description)}
+                    >
+                      <span className="tip-icon">{tip.icon}</span>
+                      <h5>{tip.title}</h5>
                       <p>{tip.description}</p>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {!showTips && (
-            <button 
-              className="show-tips-btn"
-              onClick={() => setShowTips(true)}
-            >
-              💡 Show Tips
-            </button>
-          )}
+            {response && (
+              <div className="response-area">
+                <div className="response-content">
+                  {response}
+                </div>
+              </div>
+            )}
 
-          <form onSubmit={handleSubmit} className="assistant-form">
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Ask me anything... (e.g., 'Create a lead for John Doe' or 'What's my conversion rate this month?')"
-              rows="4"
-              disabled={loading}
-            />
-            <button type="submit" disabled={loading}>
-              {loading ? 'Thinking...' : 'Ask AI'}
-            </button>
-          </form>
+            {error && (
+              <div className="error-message">
+                ⚠️ {error}
+              </div>
+            )}
 
-          {error && (
-            <div className="assistant-error">
-              ⚠️ {error}
-            </div>
-          )}
-
-          {response && (
-            <div className="assistant-response">
-              <h4>Response:</h4>
-              <div className="response-content">{response}</div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+            <form onSubmit={handleSubmit} className="assistant-form">
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Type your question or request..."
+                rows="3"
+                disabled={loading}
+              />
+              <button
+                type="submit"
+                disabled={loading || !prompt.trim()}
+                className="submit-btn"
+              >
+                {loading ? '🔄 Thinking...' : '✨ Ask AI'}
+              </button>
+            </form>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
