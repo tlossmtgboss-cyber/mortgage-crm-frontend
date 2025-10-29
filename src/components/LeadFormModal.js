@@ -4,13 +4,15 @@ import './LeadFormModal.css';
 
 function LeadFormModal({ onClose, onLeadCreated }) {
   const [formData, setFormData] = useState({
-    name: '',
+    first_name: '',
+    last_name: '',
     email: '',
     phone: '',
     status: 'New',
     source: '',
     notes: ''
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -51,20 +53,32 @@ function LeadFormModal({ onClose, onLeadCreated }) {
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content">
         <div className="modal-header">
-          <h2>Add New Lead</h2>
-          <button className="close-btn" onClick={onClose}>&times;</button>
+          Add New Lead
+          <button className="close-btn" onClick={onClose}>×</button>
         </div>
         
-        <form onSubmit={handleSubmit} className="lead-form">
+        <form className="lead-form" onSubmit={handleSubmit}>
           {error && <div className="error-message">{error}</div>}
           
           <div className="form-group">
-            <label htmlFor="name">Name *</label>
+            <label htmlFor="first_name">First Name *</label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
+              id="first_name"
+              name="first_name"
+              value={formData.first_name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="last_name">Last Name *</label>
+            <input
+              type="text"
+              id="last_name"
+              name="last_name"
+              value={formData.last_name}
               onChange={handleChange}
               required
             />
