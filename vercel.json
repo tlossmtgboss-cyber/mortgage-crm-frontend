@@ -1,4 +1,7 @@
 {
+  "functions": {
+    "api/assistant.ts": { "runtime": "edge" }
+  },
   "rewrites": [
     {
       "source": "/api/:path*",
